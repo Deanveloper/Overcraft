@@ -1,6 +1,7 @@
 package com.deanveloper.overcraft.interactive
 
 import com.deanveloper.kbukkit.plus
+import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.overcraft.Overcraft
 import com.deanveloper.overcraft.util.AbilityUse
 import com.deanveloper.overcraft.util.toClick
@@ -17,13 +18,14 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
 /**
  * @author Dean
  */
 abstract class Interactive : ItemStack(), Listener {
-    protected val COOLDOWNS = mutableSetOf<UUID>()
+    protected val COOLDOWNS = mutableMapOf<UUID, BukkitTask>()
     init {
         Bukkit.getPluginManager().registerEvents(this, Overcraft.instance)
         type = itemType
@@ -94,14 +96,20 @@ abstract class Interactive : ItemStack(), Listener {
     /**
      * Cause the item to be unusable for [player] for [time] ticks
      */
-    fun startCooldown(player: UUID, time: Long) {
+    fun startCooldown(player: UUID, time: Long): Boolean {
+        if(onCooldown(player)) return true
 
+        COOLDOWNS.put(player, runTaskLater(Overcraft.instance, time) {
+            COOLDOWNS.remove(player)
+        })
+
+        return false
     }
 
     /**
      * Cause the item to be unusable for [player] for [time] ticks
      */
-    fun startCooldown(player: Player, time: Long) = startCooldown(player.uniqueId, time)
+    fun startCooldown(player: Player, time: Long): Boolean = startCooldown(player.uniqueId, time)
 
     /**
      * Check if [player] can use this item
