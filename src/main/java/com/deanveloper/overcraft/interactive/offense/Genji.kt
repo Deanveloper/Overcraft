@@ -34,18 +34,17 @@ object Shuriken : Weapon() {
                 runTaskLater(Overcraft.instance, i) {
                     val arrow = e.player.world.spawnArrow(e.player.eyeLocation, e.player.eyeLocation.direction, 0.6f, 0f)
                     arrow.setGravity(false)
-                    object : ProjectileShot(arrow) {
-                        override val source = e.player
+                    object : ProjectileShot(e.player, arrow) {
                         override fun whileFlying() {
-                            arrow.world.spigot().playEffect(arrow.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
+                            projectile.world.spigot().playEffect(projectile.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                         }
 
                         override fun onHit(e: LivingEntity) {
-                            arrow.remove()
+                            projectile.remove()
                         }
 
                         override fun onHit() {
-                            arrow.remove()
+                            projectile.remove()
                         }
                     }
                 }
@@ -58,18 +57,18 @@ object Shuriken : Weapon() {
                         e.player.eyeLocation.direction.rotateAroundY(i.toDouble()),
                         0.6f, 0f)
                 arrow.setGravity(false)
-                object : ProjectileShot(arrow) {
-                    override val source = e.player
+                object : ProjectileShot(e.player, arrow) {
                     override fun whileFlying() {
-                        arrow.world.spigot().playEffect(arrow.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
+                        projectile.world.spigot().playEffect(projectile.location,
+                                Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                     }
 
                     override fun onHit(e: LivingEntity) {
-                        arrow.remove()
+                        projectile.remove()
                     }
 
                     override fun onHit() {
-                        arrow.remove()
+                        projectile.remove()
                     }
                 }
             }

@@ -1,31 +1,53 @@
 package com.deanveloper.overcraft.util
 
+import org.bukkit.Location
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
+import org.bukkit.util.Vector
 
 /**
  * @author Dean
  */
-class HitscanShot {
-    interface ProjectileShot {
-        /**
-         * The source of the hitscan
-         */
-        val source: Entity
+abstract class HitscanShot(
+        val source: Entity,
+        val loc: Location = source.location,
+        _vec: Vector = source.location.direction
+) {
+    val vec = _vec.normalize().multiply(.2)!!
 
-        /**
-         * What to do in each spot it checks
-         */
-        fun whileFlying()
+    init {
+        val entities = source.world.livingEntities.apply { remove(source) }
 
-        /**
-         * What to do if it hits an entity
-         */
-        fun onHit(e: LivingEntity)
+        dance@for (i in 0..500) {
+            loc.add(vec)
 
-        /**
-         * What to do if it hits anything else
-         */
-        fun onHit()
+            val hit = entities.filter {
+                it.location.distanceSquared(loc) < 1 || it.eyeLocation.distanceSquared(loc) < 1
+            }
+
+            for(e in hit) {
+                if(onHit(e)) break@dance
+            }
+            if(whileFlying(loc)) break@dance
+        }
     }
+
+    /**
+     * What to do in each spot it checks
+     *
+     * @return whether to stop the hitscan
+     */
+    abstract fun whileFlying(loc: Location): Boolean
+
+    /**
+     * What to do if it hits an entity
+     *
+     * @return whether to stop the hitscan
+     */
+    abstract fun onHit(e: LivingEntity): Boolean
+
+    /**
+     * What to do if it hits anything else
+     */
+    abstract fun onHit()
 }

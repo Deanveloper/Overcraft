@@ -11,19 +11,21 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.scheduler.BukkitTask
-import org.bukkit.util.Vector
 
 /**
  * @param[projectile] The projectile to fire
- * @param[velocity] The velocity to fire at
  * @author Dean
  */
-abstract class ProjectileShot(val projectile: Projectile) : Listener {
+abstract class ProjectileShot(val source: Entity, val projectile: Projectile) : Listener {
     private val task: BukkitTask
+    private val ticks: Int = 0
 
     init {
         task = runTaskTimer(Overcraft.instance, 1, 2) {
-            if (!projectile.isValid) {
+            if (ticks > 20L * 10 || !projectile.isValid) {
+                if(projectile.isValid) {
+                    projectile.remove()
+                }
                 this.cancel()
             } else {
                 whileFlying()
@@ -51,11 +53,6 @@ abstract class ProjectileShot(val projectile: Projectile) : Listener {
             }
         }
     }
-
-    /**
-     * The source of the projectile
-     */
-    abstract val source: Entity
 
     /**
      * What to do while it's flying
