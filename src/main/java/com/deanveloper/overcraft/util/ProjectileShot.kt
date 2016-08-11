@@ -11,7 +11,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.scheduler.BukkitTask
-import org.bukkit.util.BlockIterator
 
 /**
  * @author Dean
@@ -20,24 +19,11 @@ abstract class ProjectileShot : Listener {
     private val task: BukkitTask
 
     init {
-        if(projectile is Projectile) {
-            task = runTaskTimer(Overcraft.instance, 1, 2) {
-                if(!projectile.isValid) {
-                    this.cancel()
-                    onHit()
-                } else {
-                    whileFlying()
-                }
-            }
-        } else {
-            task = runTaskTimer(Overcraft.instance, 1, 2) {
-                val nextBlock = BlockIterator(projectile.location, 0.0, 1).next()
-                if(nextBlock.typeId != 0 || !projectile.isValid) {
-                    this.cancel()
-                    onHit()
-                } else {
-                    whileFlying()
-                }
+        task = runTaskTimer(Overcraft.instance, 1, 2) {
+            if (!projectile.isValid) {
+                this.cancel()
+            } else {
+                whileFlying()
             }
         }
 
@@ -45,16 +31,18 @@ abstract class ProjectileShot : Listener {
     }
 
     @EventHandler
-    fun onHit(e: ProjectileHitEvent) {
+    fun projectileHit(e: ProjectileHitEvent) {
         if(e.entity == projectile) {
             task.cancel()
+            onHit()
         }
     }
 
     @EventHandler
-    fun onHit(e: EntityDamageByEntityEvent) {
+    fun projectileHit(e: EntityDamageByEntityEvent) {
         if(e.damager == projectile) {
             task.cancel()
+            e.isCancelled = true
             if(e.entity is LivingEntity) {
                 onHit(e.entity as LivingEntity)
             }
@@ -69,7 +57,7 @@ abstract class ProjectileShot : Listener {
     /**
      * Our projectile
      */
-    abstract val projectile: Entity
+    abstract val projectile: Projectile
 
     /**
      * What to do while it's flying
