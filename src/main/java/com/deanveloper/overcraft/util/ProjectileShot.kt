@@ -11,11 +11,14 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.scheduler.BukkitTask
+import org.bukkit.util.Vector
 
 /**
+ * @param[projectile] The projectile to fire
+ * @param[velocity] The velocity to fire at
  * @author Dean
  */
-abstract class ProjectileShot : Listener {
+abstract class ProjectileShot(val projectile: Projectile) : Listener {
     private val task: BukkitTask
 
     init {
@@ -53,11 +56,6 @@ abstract class ProjectileShot : Listener {
      * The source of the projectile
      */
     abstract val source: Entity
-
-    /**
-     * Our projectile
-     */
-    abstract val projectile: Projectile
 
     /**
      * What to do while it's flying

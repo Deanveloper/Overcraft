@@ -34,9 +34,8 @@ object Shuriken : Weapon() {
                 runTaskLater(Overcraft.instance, i) {
                     val arrow = e.player.world.spawnArrow(e.player.eyeLocation, e.player.eyeLocation.direction, 0.6f, 0f)
                     arrow.setGravity(false)
-                    object : ProjectileShot() {
+                    object : ProjectileShot(arrow) {
                         override val source = e.player
-                        override val projectile = arrow
                         override fun whileFlying() {
                             arrow.world.spigot().playEffect(arrow.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                         }
@@ -59,9 +58,8 @@ object Shuriken : Weapon() {
                         e.player.eyeLocation.direction.rotateAroundY(i.toDouble()),
                         0.6f, 0f)
                 arrow.setGravity(false)
-                object : ProjectileShot() {
+                object : ProjectileShot(arrow) {
                     override val source = e.player
-                    override val projectile = arrow
                     override fun whileFlying() {
                         arrow.world.spigot().playEffect(arrow.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                     }
@@ -79,3 +77,4 @@ object Shuriken : Weapon() {
         }
     }
 }
+
