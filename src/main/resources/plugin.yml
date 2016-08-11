@@ -1,0 +1,4 @@
+main: com.deanveloper.overcraft.Overcraft
+name: Overcraft
+author: Deanveloper
+version: ${project.version}
