@@ -3,9 +3,8 @@ package com.deanveloper.overcraft.util
 import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.Overcraft
 import org.bukkit.Bukkit
-import org.bukkit.entity.Entity
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Projectile
+import org.bukkit.Sound
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -16,9 +15,9 @@ import org.bukkit.scheduler.BukkitTask
  * @param[projectile] The projectile to fire
  * @author Dean
  */
-abstract class ProjectileShot(val source: Entity, val projectile: Projectile) : Listener {
+abstract class ProjectileShot(var source: Entity, var projectile: Projectile) : Listener {
     private val task: BukkitTask
-    private val ticks: Int = 0
+    private var ticks: Int = 0
 
     init {
         task = runTaskTimer(Overcraft.instance, 1, 2) {
@@ -29,6 +28,7 @@ abstract class ProjectileShot(val source: Entity, val projectile: Projectile) : 
                 this.cancel()
             } else {
                 whileFlying()
+                ticks += 2
             }
         }
 
@@ -45,10 +45,26 @@ abstract class ProjectileShot(val source: Entity, val projectile: Projectile) : 
 
     @EventHandler
     fun projectileHit(e: EntityDamageByEntityEvent) {
-        if(e.damager == projectile) {
+        if(e.damager === projectile) {
             task.cancel()
             e.isCancelled = true
             if(e.entity is LivingEntity) {
+
+                //if it is genji's reflect hitbox
+                if(e.entityType === EntityType.ARMOR_STAND) {
+                    val owner = e.entity.getMetadata("reflect").getOrNull(0) as Player?
+                    if(owner != null) {
+                        source = owner
+                        ticks = 0
+                        projectile.velocity = source.location.direction.normalize()
+                                .multiply(projectile.velocity.length())
+
+                        source.world.playSound(source.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
+                        return
+                    }
+
+                }
+
                 onHit(e.entity as LivingEntity)
             }
         }

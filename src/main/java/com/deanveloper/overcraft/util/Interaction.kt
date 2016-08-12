@@ -8,11 +8,11 @@ import org.bukkit.event.block.Action
 /**
  * @author Dean
  */
-class AbilityUse(
+class Interaction(
         val player: Player,
         val item: Interactive,
         val target: LivingEntity? = null,
-        val click: Click = AbilityUse.Click.LEFT
+        val click: Click? = Interaction.Click.LEFT
 ) {
     enum class Click {
         LEFT,
@@ -20,9 +20,9 @@ class AbilityUse(
     }
 }
 
-val Action.toClick: AbilityUse.Click?
+val Action.toClick: Interaction.Click?
     get() = when(this) {
-        Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR -> AbilityUse.Click.LEFT
-        Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR -> AbilityUse.Click.RIGHT
+        Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR -> Interaction.Click.LEFT
+        Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR -> Interaction.Click.RIGHT
         Action.PHYSICAL -> null
     }

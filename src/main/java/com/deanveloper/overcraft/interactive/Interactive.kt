@@ -3,7 +3,7 @@ package com.deanveloper.overcraft.interactive
 import com.deanveloper.kbukkit.plus
 import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.overcraft.Overcraft
-import com.deanveloper.overcraft.util.AbilityUse
+import com.deanveloper.overcraft.util.Interaction
 import com.deanveloper.overcraft.util.toClick
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -39,7 +39,7 @@ abstract class Interactive : ItemStack(), Listener {
     fun _onClick(e: PlayerInteractEvent) {
         if (e.action != Action.PHYSICAL) {
             if (this.isSimilar(e.item))
-                onClick(AbilityUse(e.player, e.item as Interactive, null, e.action.toClick!!))
+                onClick(Interaction(e.player, e.item as Interactive, null, e.action.toClick!!))
         }
     }
 
@@ -47,9 +47,9 @@ abstract class Interactive : ItemStack(), Listener {
     fun _onClickPlayer(e: PlayerInteractEntityEvent) {
         if (e.rightClicked is LivingEntity) {
             if (this.isSimilar(e.player.inventory.itemInMainHand))
-                onClick(AbilityUse(
+                onClick(Interaction(
                         e.player, e.player.inventory.itemInMainHand as Interactive,
-                        e.rightClicked as LivingEntity, AbilityUse.Click.RIGHT
+                        e.rightClicked as LivingEntity, Interaction.Click.RIGHT
                 ))
         }
     }
@@ -59,9 +59,9 @@ abstract class Interactive : ItemStack(), Listener {
         if (e.damager is Player && e.entity is LivingEntity) {
             val damager = e.damager as Player
             if (this.isSimilar(damager.inventory.itemInMainHand))
-                onClick(AbilityUse(
+                onClick(Interaction(
                         damager, damager.inventory.itemInMainHand as Interactive,
-                        e.entity as LivingEntity, AbilityUse.Click.LEFT
+                        e.entity as LivingEntity, Interaction.Click.LEFT
                 ))
         }
     }
@@ -69,9 +69,9 @@ abstract class Interactive : ItemStack(), Listener {
     @EventHandler
     fun _checkEquip(e: PlayerItemHeldEvent) {
         if (e.player.inventory.getItem(e.previousSlot).isSimilar(this)) {
-            onUnEquip()
+            onUnEquip(e.player)
         } else if (e.player.inventory.getItem(e.newSlot).isSimilar(this)) {
-            if (onEquip()) {
+            if (onEquip(e.player)) {
                 // Might call the event again? Not sure. Will test, but hopefully it should
                 e.player.inventory.heldItemSlot = 0
             }
@@ -124,19 +124,19 @@ abstract class Interactive : ItemStack(), Listener {
     /**
      * When the interactive is clicked
      */
-    abstract fun onClick(e: AbilityUse)
+    abstract fun onClick(e: Interaction)
 
     /**
      * When the interactive is equipped
      *
      * @return whether to move the cursor back to the main weapon
      */
-    abstract fun onEquip(): Boolean
+    abstract fun onEquip(p: Player): Boolean
 
     /**
      * When the interactive is equipped
      */
-    abstract fun onUnEquip()
+    abstract fun onUnEquip(p: Player)
 
     /**
      * Function to decide if an item is this type of item
