@@ -6,15 +6,16 @@ import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.Overcraft
 import com.deanveloper.overcraft.interactive.Ability
 import com.deanveloper.overcraft.interactive.Weapon
+import com.deanveloper.overcraft.oc
 import com.deanveloper.overcraft.util.Interaction
 import com.deanveloper.overcraft.util.ProjectileShot
 import com.deanveloper.overcraft.util.rotateAroundY
 import org.bukkit.ChatColor
 import org.bukkit.Effect
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
-import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.metadata.LazyMetadataValue
 
 /**
@@ -33,10 +34,11 @@ object Shuriken : Weapon() {
 
     override fun onUse(e: Interaction) {
         if (e.click == Interaction.Click.LEFT) {
-            for (i in 0L..11L step 4L) {
-                runTaskLater(Overcraft.instance, i) {
+            for (i in 0..11 step 4) {
+                runTaskLater(Overcraft.instance, i.toLong()) {
                     val arrow = e.player.world.spawnArrow(e.player.eyeLocation, e.player.eyeLocation.direction, 0.6f, 0f)
                     arrow.setGravity(false)
+                    arrow.world.playSound(arrow.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, .8f)
                     object : ProjectileShot(e.player, arrow) {
                         override fun whileFlying() {
                             projectile.world.spigot().playEffect(projectile.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
@@ -60,6 +62,7 @@ object Shuriken : Weapon() {
                         e.player.eyeLocation.direction.rotateAroundY(i.toDouble()),
                         0.6f, 0f)
                 arrow.setGravity(false)
+                arrow.world.playSound(arrow.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, .8f)
                 object : ProjectileShot(e.player, arrow) {
                     override fun whileFlying() {
                         projectile.world.spigot().playEffect(projectile.location,
@@ -92,15 +95,22 @@ object Reflect : Ability() {
         val p = i.player
         val armorStand = p.world.spawn(p.location.add(p.location.direction), ArmorStand::class.java)
         armorStand.setMetadata("reflect", LazyMetadataValue(Overcraft.instance, { i.player }))
+        i.player.oc.removeOnDeath.add(armorStand)
 
-        val task = runTaskTimer(Overcraft.instance, 0L, 1L) {
-            armorStand.teleport(p.location.add(p.location.direction))
+        val task = runTaskTimer(Overcraft.instance, 0, 1) {
+            armorStand.teleport(p.location.add(p.location.direction.setY(0)))
         }
 
-        runTaskLater(Overcraft.instance, 20L) {
+        val otherTask = runTaskTimer(Overcraft.instance, 0, 4) {
+            armorStand.world.playSound(armorStand.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, .5f, 1.5f)
+        }
+
+        runTaskLater(Overcraft.instance, 20 * 2) {
+            armorStand.remove()
             task.cancel()
+            otherTask.cancel()
         }
 
-        startCooldown(p, 20)
+        startCooldown(p, 20 * 8)
     }
 }

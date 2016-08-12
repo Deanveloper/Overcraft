@@ -1,5 +1,7 @@
 package com.deanveloper.overcraft
 
+import com.deanveloper.overcraft.util.OcPlayer
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -15,3 +17,6 @@ class Overcraft : JavaPlugin() {
         instance = this
     }
 }
+
+val Player.oc: OcPlayer
+    get() = OcPlayer[this]

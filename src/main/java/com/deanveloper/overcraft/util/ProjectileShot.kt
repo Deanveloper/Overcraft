@@ -58,6 +58,7 @@ abstract class ProjectileShot(var source: Entity, var projectile: Projectile) : 
                         ticks = 0
                         projectile.velocity = source.location.direction.normalize()
                                 .multiply(projectile.velocity.length())
+                        projectile.shooter = owner
 
                         source.world.playSound(source.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
                         return
