@@ -1,8 +1,8 @@
 package com.deanveloper.overcraft.interactive
 
 import com.deanveloper.kbukkit.plus
-import com.deanveloper.kbukkit.runTaskLater
-import com.deanveloper.overcraft.Overcraft
+import com.deanveloper.overcraft.PLUGIN
+import com.deanveloper.overcraft.util.Cooldowns
 import com.deanveloper.overcraft.util.Interaction
 import com.deanveloper.overcraft.util.toClick
 import org.bukkit.Bukkit
@@ -18,18 +18,17 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.scheduler.BukkitTask
-import java.util.*
 
 /**
  * @author Dean
  */
-abstract class Interactive : ItemStack(), Listener {
-    protected val COOLDOWNS = mutableMapOf<UUID, BukkitTask>()
+abstract class Interactive : Listener {
+    protected val cooldowns = Cooldowns()
+    val item: ItemStack = ItemStack(Material.AIR)
+
     init {
-        Bukkit.getPluginManager().registerEvents(this, Overcraft.instance)
-        type = itemType
-        itemMeta = itemMeta.apply {
+        Bukkit.getPluginManager().registerEvents(this, PLUGIN)
+        item.itemMeta = item.itemMeta.apply {
             this.displayName = name
             this.lore = this@Interactive.lore.map { ChatColor.GRAY + it }
         }
@@ -38,19 +37,32 @@ abstract class Interactive : ItemStack(), Listener {
     @EventHandler
     fun _onClick(e: PlayerInteractEvent) {
         if (e.action != Action.PHYSICAL) {
-            if (this.isSimilar(e.item))
-                onClick(Interaction(e.player, e.item as Interactive, null, e.action.toClick!!))
+            if (this.isSimilar(e.item)) {
+                e.isCancelled = true
+
+                onClick(Interaction(
+                    e.player,
+                    this,
+                    null,
+                    e.action.toClick!!
+            ))
+            }
         }
     }
 
     @EventHandler
     fun _onClickPlayer(e: PlayerInteractEntityEvent) {
         if (e.rightClicked is LivingEntity) {
-            if (this.isSimilar(e.player.inventory.itemInMainHand))
+            if (this.isSimilar(e.player.inventory.itemInMainHand)) {
+                e.isCancelled = true
+
                 onClick(Interaction(
-                        e.player, e.player.inventory.itemInMainHand as Interactive,
-                        e.rightClicked as LivingEntity, Interaction.Click.RIGHT
+                        e.player,
+                        this,
+                        e.rightClicked as LivingEntity,
+                        Interaction.Click.RIGHT
                 ))
+            }
         }
     }
 
@@ -58,22 +70,29 @@ abstract class Interactive : ItemStack(), Listener {
     fun _onClickPlayer(e: EntityDamageByEntityEvent) {
         if (e.damager is Player && e.entity is LivingEntity) {
             val damager = e.damager as Player
-            if (this.isSimilar(damager.inventory.itemInMainHand))
+            if (this.isSimilar(damager.inventory.itemInMainHand)) {
+                e.isCancelled = true
                 onClick(Interaction(
-                        damager, damager.inventory.itemInMainHand as Interactive,
-                        e.entity as LivingEntity, Interaction.Click.LEFT
+                        damager,
+                        this,
+                        e.entity as LivingEntity,
+                        Interaction.Click.LEFT
                 ))
+            }
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _checkEquip(e: PlayerItemHeldEvent) {
-        if (e.player.inventory.getItem(e.previousSlot).isSimilar(this)) {
-            onUnEquip(e.player)
-        } else if (e.player.inventory.getItem(e.newSlot).isSimilar(this)) {
+        if (this.isSimilar(e.player.inventory.getItem(e.previousSlot))) {
+            if(onUnEquip(e.player)) {
+                // should move it back while not calling a second event?
+                e.isCancelled = true
+            }
+        } else if (this.isSimilar(e.player.inventory.getItem(e.newSlot))) {
             if (onEquip(e.player)) {
-                // Might call the event again? Not sure. Will test, but hopefully it should
-                e.player.inventory.heldItemSlot = 0
+                // should move it back while not cancelling the event
+                e.player.inventory.heldItemSlot = e.previousSlot
             }
         }
     }
@@ -81,7 +100,7 @@ abstract class Interactive : ItemStack(), Listener {
     /**
      * Type of the item
      */
-    abstract val itemType: Material
+    abstract val type: Material
 
     /**
      * Name of the item
@@ -92,34 +111,6 @@ abstract class Interactive : ItemStack(), Listener {
      * Lore of the item
      */
     abstract val lore: List<String>
-
-    /**
-     * Cause the item to be unusable for [player] for [time] ticks
-     */
-    fun startCooldown(player: UUID, time: Long): Boolean {
-        if(onCooldown(player)) return true
-
-        COOLDOWNS.put(player, runTaskLater(Overcraft.instance, time) {
-            COOLDOWNS.remove(player)
-        })
-
-        return false
-    }
-
-    /**
-     * Cause the item to be unusable for [player] for [time] ticks
-     */
-    fun startCooldown(player: Player, time: Long): Boolean = startCooldown(player.uniqueId, time)
-
-    /**
-     * Check if [player] can use this item
-     */
-    fun onCooldown(player: UUID): Boolean = COOLDOWNS.contains(player)
-
-    /**
-     * Check if [player] can use this item
-     */
-    fun onCooldown(player: Player): Boolean = onCooldown(player.uniqueId)
 
     /**
      * When the interactive is clicked
@@ -135,15 +126,17 @@ abstract class Interactive : ItemStack(), Listener {
 
     /**
      * When the interactive is equipped
+     *
+     * @return whether to keep the cursor on the item
      */
-    abstract fun onUnEquip(p: Player)
+    abstract fun onUnEquip(p: Player): Boolean
 
     /**
      * Function to decide if an item is this type of item
      */
-    override final fun isSimilar(item: ItemStack): Boolean {
-        return item.itemMeta?.displayName == this.itemMeta?.displayName
-                && item.itemMeta?.lore == this.itemMeta?.lore
-                && item.typeId == this.typeId
+    fun isSimilar(item: ItemStack): Boolean {
+        return item.itemMeta?.displayName == this.item.itemMeta?.displayName
+                && item.itemMeta?.lore == this.item.itemMeta?.lore
+                && item.typeId == this.item.typeId
     }
 }

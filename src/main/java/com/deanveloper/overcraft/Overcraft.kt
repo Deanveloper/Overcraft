@@ -7,14 +7,12 @@ import org.bukkit.plugin.java.JavaPlugin
 /**
  * @author Dean
  */
+private var _PLUGIN: Overcraft? = null
+val PLUGIN: Overcraft
+    get() = _PLUGIN!!
 class Overcraft : JavaPlugin() {
-    companion object {
-        lateinit var instance: Overcraft
-            private set
-    }
-
     override fun onEnable() {
-        instance = this
+        _PLUGIN = this
     }
 }
 

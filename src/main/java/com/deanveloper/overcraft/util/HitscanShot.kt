@@ -39,28 +39,35 @@ abstract class HitscanShot(
                         source.world.playSound(source.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
                     }
                 }
-                if(onHit(e)) break@dance
+                if(!onHit(e)) break@dance
             }
-            if(whileFlying(loc)) break@dance
+
+            if(loc.block !== null && loc.block.typeId !== 0) {
+                if(!onHit()) break@dance
+            }
+
+            if(!whileFlying(loc)) break@dance
         }
     }
 
     /**
      * What to do in each spot it checks
      *
-     * @return whether to stop the hitscan
+     * @return whether to continue the hitscan
      */
     abstract fun whileFlying(loc: Location): Boolean
 
     /**
      * What to do if it hits an entity
      *
-     * @return whether to stop the hitscan
+     * @return whether to continue the hitscan
      */
     abstract fun onHit(e: LivingEntity): Boolean
 
     /**
      * What to do if it hits anything else
+     *
+     * @return whether to continue the hitscan
      */
-    abstract fun onHit()
+    abstract fun onHit(): Boolean
 }

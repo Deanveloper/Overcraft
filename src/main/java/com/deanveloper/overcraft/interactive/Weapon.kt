@@ -10,7 +10,7 @@ abstract class Weapon : Interactive() {
     abstract fun onUse(e: Interaction)
 
     override final fun onClick(e: Interaction) {
-        if (!onCooldown(e.player)) {
+        if (!cooldowns[e.player]) {
             onUse(e)
         }
     }
