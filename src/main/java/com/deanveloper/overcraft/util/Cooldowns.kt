@@ -2,6 +2,7 @@ package com.deanveloper.overcraft.util
 
 import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.overcraft.Overcraft
+import com.deanveloper.overcraft.PLUGIN
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitTask
 import java.util.*
@@ -26,7 +27,7 @@ class Cooldowns {
     fun addCooldown(p: Player, ticks: Long, onRemove: () -> Unit = DO_NOTHING) = addCooldown(p.uniqueId, ticks, onRemove)
 
     fun addCooldown(id: UUID, ticks: Long, onRemove: () -> Unit = DO_NOTHING) {
-        cooldowns[id] = Pair(runTaskLater(Overcraft.instance, ticks, { remove(id) }), onRemove)
+        cooldowns[id] = Pair(runTaskLater(PLUGIN, ticks, { remove(id) }), onRemove)
     }
 
     operator fun get(id: UUID) = id in cooldowns
