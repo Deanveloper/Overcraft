@@ -94,6 +94,8 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.deanveloper:KBukkit:jar</include>
+                                    <include>org.jetbrains.kotlin:kotlin-stdlib:jar</include>
+                                    <include>org.jetbrains.kotlin:kotlin-runtime:jar</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
