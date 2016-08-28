@@ -172,10 +172,12 @@ object Dragonblade : Ultimate(true) {
     }
 
     override fun onAttack(i: Interaction) {
-        i.target?.damage(8.0)
-        item.type = Material.IRON_SWORD
-        cooldowns.addCooldown(i.player, 20) {
-            item.type = type
+        if(!cooldowns[i.player]) {
+            i.target?.damage(8.0)
+            item.type = Material.IRON_SWORD
+            cooldowns.addCooldown(i.player, 20) {
+                item.type = type
+            }
         }
     }
 
