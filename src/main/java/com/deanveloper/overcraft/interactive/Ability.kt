@@ -5,6 +5,7 @@ import org.bukkit.DyeColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.material.Colorable
+import org.bukkit.material.Dye
 import java.util.*
 
 /**
@@ -14,16 +15,23 @@ abstract class Ability(val useOnEquip: Boolean = true) : Interactive() {
     override val type = Material.STAINED_GLASS_PANE
 
     init {
-        (item.data as Colorable).color = DyeColor.LIME
+        if(type === Material.STAINED_GLASS_PANE) {
+            item.data.data = DyeColor.LIME.woolData
+        }
     }
 
     abstract val cooldown: Long
     abstract fun onUse(i: Interaction)
 
     fun startCooldown(id: UUID) {
-        (item.data as Colorable).color = DyeColor.GRAY
+        item.type = Material.STAINED_GLASS_PANE
+        item.data.data = DyeColor.GRAY.woolData
+
         cooldowns.addCooldown(id, cooldown) {
-            (item.data as Colorable).color = DyeColor.LIME
+            item.type = type
+            if(type === Material.STAINED_GLASS_PANE) {
+                item.data.data = DyeColor.LIME.woolData
+            }
         }
     }
 

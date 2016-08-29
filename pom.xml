@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.deanveloper</groupId>
             <artifactId>kbukkit</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <!--Kotlin StdLib-->
         <dependency>
@@ -93,22 +93,11 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>com.deanveloper:kbukkit:jar</include>
-                                    <include>org.jetbrains.kotlin:kotlin-stdlib:jar</include>
-                                    <include>org.jetbrains.kotlin:kotlin-runtime:jar</include>
+                                    <include>com.deanveloper:kbukkit:jar:</include>
+                                    <include>org.jetbrains.kotlin:kotlin-stdlib:jar:</include>
+                                    <include>org.jetbrains.kotlin:kotlin-runtime:jar:</include>
                                 </includes>
                             </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.deanveloper.kbukkit</pattern>
-                                    <shadedPattern>com.deanveloper.overcraft.shaded.kbukkit</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>kotlin</pattern>
-                                    <shadedPattern>com.deanveloper.overcraft.shaded.kotlin</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <minimizeJar>true</minimizeJar>
                         </configuration>
                     </execution>
                 </executions>

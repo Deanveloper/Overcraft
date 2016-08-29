@@ -1,6 +1,7 @@
 package com.deanveloper.overcraft.interactive
 
 import com.deanveloper.kbukkit.plus
+import com.deanveloper.kbukkit.runTask
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.util.Cooldowns
 import com.deanveloper.overcraft.util.Interaction
@@ -28,9 +29,14 @@ abstract class Interactive : Listener {
 
     init {
         Bukkit.getPluginManager().registerEvents(this, PLUGIN)
-        item.itemMeta = item.itemMeta.apply {
-            this.displayName = name
-            this.lore = this@Interactive.lore.map { ChatColor.GRAY + it }
+
+        // run at the end of the tick when the fields are instantiated
+        runTask(PLUGIN) {
+            item.type = type
+            item.itemMeta = item.itemMeta.apply {
+                this?.displayName = name
+                this?.lore = this@Interactive.lore.map { ChatColor.GRAY + it }
+            }
         }
     }
 
@@ -134,9 +140,11 @@ abstract class Interactive : Listener {
     /**
      * Function to decide if an item is this type of item
      */
-    fun isSimilar(item: ItemStack): Boolean {
+    fun isSimilar(item: ItemStack?): Boolean {
+        if(item === null) return false
         return item.itemMeta?.displayName == this.item.itemMeta?.displayName
                 && item.itemMeta?.lore == this.item.itemMeta?.lore
+                && item.data.data == this.item.data.data
                 && item.typeId == this.item.typeId
     }
 }

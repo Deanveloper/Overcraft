@@ -3,7 +3,6 @@ package com.deanveloper.overcraft.interactive.offense
 import com.deanveloper.kbukkit.plus
 import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.kbukkit.runTaskTimer
-import com.deanveloper.overcraft.Overcraft
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.interactive.Ability
 import com.deanveloper.overcraft.interactive.Ultimate

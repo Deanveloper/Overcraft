@@ -18,10 +18,6 @@ abstract class Ultimate(val useOnEquip: Boolean = true) : Interactive() {
     var percent: Double = 0.0
     var beingUsed: Boolean = false
 
-    init {
-        (item.data as Colorable).color = DyeColor.LIME
-    }
-
     abstract fun onUse(i: Interaction)
 
     open fun onAttack(i: Interaction) {}

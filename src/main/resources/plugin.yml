@@ -5,3 +5,4 @@ version: ${project.version}
 commands:
   hero:
     description: "select a hero"
+    usage: "/hero [hero]"
