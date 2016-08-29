@@ -43,7 +43,7 @@ abstract class HitscanShot(
             }
 
             if(loc.block !== null && loc.block.typeId !== 0) {
-                if(!onHit()) break@dance
+                if(!onHit(loc)) break@dance
             }
 
             if(!whileFlying(loc)) break@dance
@@ -69,5 +69,5 @@ abstract class HitscanShot(
      *
      * @return whether to continue the hitscan
      */
-    abstract fun onHit(): Boolean
+    abstract fun onHit(loc: Location): Boolean
 }
