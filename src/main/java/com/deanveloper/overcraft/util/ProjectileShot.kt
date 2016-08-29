@@ -2,6 +2,7 @@ package com.deanveloper.overcraft.util
 
 import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.Overcraft
+import com.deanveloper.overcraft.PLUGIN
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.*
@@ -20,7 +21,7 @@ abstract class ProjectileShot(var source: Entity, var projectile: Projectile) : 
     private var ticks: Int = 0
 
     init {
-        task = runTaskTimer(Overcraft.instance, 1, 2) {
+        task = runTaskTimer(PLUGIN, 1, 2) {
             if (ticks > 20L * 10 || !projectile.isValid) {
                 if(projectile.isValid) {
                     projectile.remove()
@@ -32,7 +33,7 @@ abstract class ProjectileShot(var source: Entity, var projectile: Projectile) : 
             }
         }
 
-        Bukkit.getPluginManager().registerEvents(this, Overcraft.instance)
+        Bukkit.getPluginManager().registerEvents(this, PLUGIN)
     }
 
     @EventHandler
