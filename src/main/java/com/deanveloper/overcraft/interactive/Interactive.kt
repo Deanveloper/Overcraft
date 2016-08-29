@@ -125,7 +125,7 @@ abstract class Interactive : Listener {
     abstract fun onEquip(p: Player): Boolean
 
     /**
-     * When the interactive is equipped
+     * When the interactive is unequipped
      *
      * @return whether to keep the cursor on the item
      */

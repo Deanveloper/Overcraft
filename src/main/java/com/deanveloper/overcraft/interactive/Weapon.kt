@@ -14,6 +14,18 @@ abstract class Weapon : Interactive() {
             onUse(e)
         }
     }
+
+    /**
+     * When the interactive is equipped
+     *
+     * @return whether to keep the cursor on the item
+     */
     override fun onEquip(p: Player) = false
-    override fun onUnEquip(p: Player) {}
+
+    /**
+     * When the interactive is unequipped
+     *
+     * @return whether to move the cursor back to the main weapon
+     */
+    override fun onUnEquip(p: Player): Boolean = false
 }
