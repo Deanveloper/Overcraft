@@ -29,7 +29,8 @@ object GeneralListener : Listener {
     fun onDeath(d: PlayerDeathEvent) {
         d.deathMessage = "${d.entity.displayName} was killed"
 
-        val lastAttacker = OcPlayer[d.entity].lastAttacker
+        val p = OcPlayer[d.entity]
+        val lastAttacker = p.lastAttacker
         if(lastAttacker !== null) {
             d.deathMessage += " by ${lastAttacker.displayName}"
         }
@@ -37,5 +38,7 @@ object GeneralListener : Listener {
         d.keepInventory = true
         d.keepLevel = true
         d.drops.clear()
+
+        p.onDeath()
     }
 }
