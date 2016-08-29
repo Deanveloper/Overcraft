@@ -5,13 +5,11 @@ import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.interactive.Ability
+import com.deanveloper.overcraft.interactive.ItemPair
 import com.deanveloper.overcraft.interactive.Ultimate
 import com.deanveloper.overcraft.interactive.Weapon
 import com.deanveloper.overcraft.oc
-import com.deanveloper.overcraft.util.HitscanShot
-import com.deanveloper.overcraft.util.Interaction
-import com.deanveloper.overcraft.util.ProjectileShot
-import com.deanveloper.overcraft.util.rotateAroundY
+import com.deanveloper.overcraft.util.*
 import org.bukkit.*
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
@@ -25,18 +23,18 @@ object Shuriken : Weapon() {
     override val cooldown: Long
         get() = throw UnsupportedOperationException("Custom cooldown impl")
 
-    override val item = ItemStack(Material.NETHER_STAR).apply {
-        itemMeta = itemMeta.apply {
-            displayName = ChatColor.GREEN + "Shuriken"
-            lore = listOf(
-                    "Left Click",
-                    " - Shoot three shurikens in a row",
-                    "",
-                    "Right Click",
-                    " - Shoot three shurikens in a fan pattern"
-            )
-        }
-    }
+    override val items = ItemPair(
+            OcItem(Material.NETHER_STAR,
+                    ChatColor.GREEN + "Shuriken",
+                    listOf(
+                            "Left Click",
+                            " - Shoot three shurikens in a row",
+                            "",
+                            "Right Click",
+                            " - Shoot three shurikens in a fan pattern"
+                    )
+            ),
+            toDefaultCooldown = false)
 
     override fun onUse(e: Interaction) {
         if (e.click == Interaction.Click.LEFT) {
@@ -96,14 +94,14 @@ object Shuriken : Weapon() {
 
 object Reflect : Ability() {
     override val slot = 1
-    override val item = super.item.apply {
-        itemMeta = itemMeta.apply {
-            displayName = "§dReflect"
-            lore = listOf(
-                    "Reflect any projectiles away from you"
-            )
-        }
-    }
+    override val items = ItemPair(
+            ItemPair.DEFAULT_ITEM.apply {
+                name = ChatColor.LIGHT_PURPLE + "Reflect"
+                lore = listOf(
+                        "Reflects projectiles in front of you",
+                        "in the direction you are looking"
+                )
+            }, true)
 
     override val cooldown = 20 * 8L
 
@@ -132,16 +130,16 @@ object Reflect : Ability() {
 }
 
 object SwiftStrike : Ability() {
+    override val items = ItemPair(
+            OcItem(Material.FEATHER,
+                    ChatColor.LIGHT_PURPLE + "Swift Strike",
+                    listOf(
+                            "Move forward with extreme speed,",
+                            "damaging enemies as you pass them"
+                    )
+            ), toDefaultCooldown = true)
+
     override val slot = 2
-    override val item = ItemStack(Material.FEATHER).apply {
-        itemMeta = itemMeta.apply {
-            displayName = ChatColor.LIGHT_PURPLE + "Swift Strike"
-            lore = listOf(
-                    "Move forward with extreme speed,",
-                    "damaging enemies as you pass them"
-            )
-        }
-    }
 
     override val cooldown = 8 * 20L
 
@@ -177,17 +175,24 @@ object Dragonblade : Ultimate(true) {
     override val cooldown: Long
         get() = 20L
     override val slot = 3
-    override val item = ItemStack(Material.DIAMOND_SWORD).apply {
-        itemMeta = itemMeta.apply {
-            displayName = ChatColor.GREEN + ChatColor.BOLD + "Swift Strike"
-            lore = listOf(
-                    "Wield your sword, which deals",
-                    "an extremely large amount of damage"
+    override val items = ItemPair(
+            OcItem(
+                    Material.DIAMOND_SWORD,
+                    ChatColor.GREEN + ChatColor.BOLD + "Swift Strike",
+                    listOf(
+                            "Wield your sword, which deals",
+                            "an extremely large amount of damage"
+                    )
+            ),
+            OcItem(
+                    Material.IRON_SWORD,
+                    ChatColor.GREEN + ChatColor.BOLD + "Swift Strike",
+                    listOf(
+                            "Wield your sword, which deals",
+                            "an extremely large amount of damage"
+                    )
             )
-        }
-    }
-
-    override val cooldownItem = item.clone().apply { type = Material.IRON_SWORD }
+    )
 
     override val honorBound = true
 

@@ -3,8 +3,11 @@ package com.deanveloper.overcraft.interactive
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.util.Cooldowns
 import com.deanveloper.overcraft.util.Interaction
+import com.deanveloper.overcraft.util.OcItem
 import com.deanveloper.overcraft.util.toClick
 import org.bukkit.Bukkit
+import org.bukkit.DyeColor
+import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -26,8 +29,8 @@ import java.lang.ref.WeakReference
 abstract class Interactive : Listener {
     protected val cooldowns = Cooldowns()
 
-    abstract val item: ItemStack
-    abstract val cooldownItem: ItemStack
+    abstract val items: ItemPair
+
     abstract val slot: Int
 
     abstract val cooldown: Long
@@ -117,10 +120,10 @@ abstract class Interactive : Listener {
     }
 
     fun startCooldown(p: Player) {
-        p.inventory.setItem(slot, cooldownItem)
+        p.inventory.setItem(slot, items.cooldown)
         val pref = WeakReference(p)
         cooldowns.addCooldown(p, cooldown) {
-            pref.get()?.inventory?.setItem(slot, item)
+            pref.get()?.inventory?.setItem(slot, items.main)
         }
     }
 
@@ -142,4 +145,21 @@ abstract class Interactive : Listener {
      * @return whether to keep the cursor on the item
      */
     abstract fun onUnEquip(p: Player): Boolean
+}
+
+data class ItemPair(val main: ItemStack, val cooldown: ItemStack) {
+    companion object {
+        val DEFAULT_ITEM: OcItem
+            get() = OcItem(Material.STAINED_GLASS_PANE, 1, DyeColor.LIME.woolData.toShort())
+    }
+    constructor(main: ItemStack, toDefaultCooldown: Boolean) : this(
+            main,
+            if(toDefaultCooldown) {
+                main.clone().apply {
+                    data.data = DyeColor.GRAY.woolData
+                    type = Material.STAINED_GLASS_PANE
+                }
+            } else {
+                main
+            })
 }

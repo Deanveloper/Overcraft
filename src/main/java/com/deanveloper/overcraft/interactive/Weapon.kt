@@ -7,7 +7,6 @@ import org.bukkit.entity.Player
  * @author Dean
  */
 abstract class Weapon : Interactive() {
-    override val cooldownItem = item
     override val slot = 0
 
     abstract fun onUse(e: Interaction)
