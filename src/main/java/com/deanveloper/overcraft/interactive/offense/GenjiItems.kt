@@ -15,21 +15,28 @@ import com.deanveloper.overcraft.util.rotateAroundY
 import org.bukkit.*
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
+import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.LazyMetadataValue
 
 /**
  * @author Dean
  */
 object Shuriken : Weapon() {
-    override val type = Material.NETHER_STAR
-    override val name = ChatColor.GREEN + "Shuriken"
-    override val lore = listOf(
-            "Left Click",
-            " - Shoot three shurikens in a row",
-            "",
-            "Right Click",
-            " - Shoot three shurikens in a fan pattern"
-    )
+    override val cooldown: Long
+        get() = throw UnsupportedOperationException("Custom cooldown impl")
+
+    override val item = ItemStack(Material.NETHER_STAR).apply {
+        itemMeta = itemMeta.apply {
+            displayName = ChatColor.GREEN + "Shuriken"
+            lore = listOf(
+                    "Left Click",
+                    " - Shoot three shurikens in a row",
+                    "",
+                    "Right Click",
+                    " - Shoot three shurikens in a fan pattern"
+            )
+        }
+    }
 
     override fun onUse(e: Interaction) {
         if (e.click == Interaction.Click.LEFT) {
@@ -88,10 +95,16 @@ object Shuriken : Weapon() {
 }
 
 object Reflect : Ability() {
-    override val name = "§dReflect"
-    override val lore = listOf(
-            "Reflect any projectiles away from you"
-    )
+    override val slot = 1
+    override val item = super.item.apply {
+        itemMeta = itemMeta.apply {
+            displayName = "§dReflect"
+            lore = listOf(
+                    "Reflect any projectiles away from you"
+            )
+        }
+    }
+
     override val cooldown = 20 * 8L
 
     override fun onUse(i: Interaction) {
@@ -113,18 +126,23 @@ object Reflect : Ability() {
             task.cancel()
             otherTask.cancel()
 
-            startCooldown(p.uniqueId)
+            startCooldown(p)
         }
     }
 }
 
 object SwiftStrike : Ability() {
-    override val type = Material.FEATHER
-    override val name = "§dSwift Strike"
-    override val lore = listOf(
-            "Move forward with extreme speed,",
-            "damaging enemies as you pass them"
-    )
+    override val slot = 2
+    override val item = ItemStack(Material.FEATHER).apply {
+        itemMeta = itemMeta.apply {
+            displayName = ChatColor.LIGHT_PURPLE + "Swift Strike"
+            lore = listOf(
+                    "Move forward with extreme speed,",
+                    "damaging enemies as you pass them"
+            )
+        }
+    }
+
     override val cooldown = 8 * 20L
 
     override fun onUse(i: Interaction) {
@@ -133,7 +151,7 @@ object SwiftStrike : Ability() {
 
         object : HitscanShot(i.player) {
             override fun whileFlying(loc: Location): Boolean {
-                if(loc.distanceSquared(to) < 1) {
+                if (loc.distanceSquared(to) < 1) {
                     i.player.teleport(to)
                     return false
                 }
@@ -145,17 +163,33 @@ object SwiftStrike : Ability() {
                 return true
             }
 
-            override fun onHit(): Boolean {
-                i.player.teleport(to)
+            override fun onHit(loc: Location): Boolean {
+                i.player.teleport(loc.clone().subtract(loc.direction.multiply(.2)))
                 return false
             }
         }
+
+        startCooldown(i.player)
     }
 }
 
 object Dragonblade : Ultimate(true) {
+    override val cooldown: Long
+        get() = 20L
+    override val slot = 3
+    override val item = ItemStack(Material.DIAMOND_SWORD).apply {
+        itemMeta = itemMeta.apply {
+            displayName = ChatColor.GREEN + ChatColor.BOLD + "Swift Strike"
+            lore = listOf(
+                    "Wield your sword, which deals",
+                    "an extremely large amount of damage"
+            )
+        }
+    }
+
+    override val cooldownItem = item.clone().apply { type = Material.IRON_SWORD }
+
     override val honorBound = true
-    override val type = Material.DIAMOND_SWORD
 
     override fun onUse(i: Interaction) {
         runTaskTimer(PLUGIN, 0, 5) {
@@ -171,18 +205,7 @@ object Dragonblade : Ultimate(true) {
     }
 
     override fun onAttack(i: Interaction) {
-        if(!cooldowns[i.player]) {
-            i.target?.damage(8.0)
-            item.type = Material.IRON_SWORD
-            cooldowns.addCooldown(i.player, 20) {
-                item.type = type
-            }
-        }
+        i.target?.damage(8.0)
+        startCooldown(i.player)
     }
-
-    override val name = "§a§lDRAGONBLADE"
-    override val lore = listOf(
-            "Wield your sword, which deals",
-            "an extremely large amount of damage"
-    )
 }

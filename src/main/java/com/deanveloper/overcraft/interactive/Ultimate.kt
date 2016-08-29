@@ -1,9 +1,7 @@
 package com.deanveloper.overcraft.interactive
 
 import com.deanveloper.overcraft.util.Interaction
-import org.bukkit.DyeColor
 import org.bukkit.entity.Player
-import org.bukkit.material.Colorable
 
 /**
  * @author Dean
@@ -25,7 +23,7 @@ abstract class Ultimate(val useOnEquip: Boolean = true) : Interactive() {
     override fun onClick(e: Interaction) {
         if (percent >= 1.0 && !useOnEquip) {
             onUse(e)
-        } else if(beingUsed) {
+        } else if(beingUsed && !cooldowns[e.player]) {
             onAttack(e)
         }
     }

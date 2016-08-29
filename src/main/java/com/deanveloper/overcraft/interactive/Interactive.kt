@@ -1,65 +1,77 @@
 package com.deanveloper.overcraft.interactive
 
-import com.deanveloper.kbukkit.plus
-import com.deanveloper.kbukkit.runTask
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.util.Cooldowns
 import com.deanveloper.overcraft.util.Interaction
 import com.deanveloper.overcraft.util.toClick
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
-import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import java.lang.ref.WeakReference
 
 /**
  * @author Dean
  */
 abstract class Interactive : Listener {
     protected val cooldowns = Cooldowns()
-    val item: ItemStack = ItemStack(Material.AIR)
+
+    abstract val item: ItemStack
+    abstract val cooldownItem: ItemStack
+    abstract val slot: Int
+
+    abstract val cooldown: Long
 
     init {
         Bukkit.getPluginManager().registerEvents(this, PLUGIN)
+    }
 
-        // run at the end of the tick when the fields are instantiated
-        runTask(PLUGIN) {
-            item.type = type
-            item.itemMeta = item.itemMeta.apply {
-                this?.displayName = name
-                this?.lore = this@Interactive.lore.map { ChatColor.GRAY + it }
+    @EventHandler
+    fun _onClick(e: PlayerInteractEvent) {
+        if(e.hand === EquipmentSlot.HAND) {
+            if (e.action != Action.PHYSICAL) {
+                if (slot === e.player.inventory.heldItemSlot) {
+                    e.isCancelled = true
+
+                    onClick(Interaction(
+                            e.player,
+                            this,
+                            null,
+                            e.action.toClick!!
+                    ))
+                }
             }
         }
     }
 
     @EventHandler
-    fun _onClick(e: PlayerInteractEvent) {
-        if (e.action != Action.PHYSICAL) {
-            if (this.isSimilar(e.item)) {
-                e.isCancelled = true
+    fun _onDrop(e: PlayerDropItemEvent) {
+        if(e.player.inventory.heldItemSlot == slot) {
+            e.isCancelled = true
+        }
+    }
 
-                onClick(Interaction(
-                    e.player,
-                    this,
-                    null,
-                    e.action.toClick!!
-            ))
-            }
+    @EventHandler
+    fun _onInventory(e: InventoryClickEvent) {
+        if(e.slot == slot) {
+            e.isCancelled = true
         }
     }
 
     @EventHandler
     fun _onClickPlayer(e: PlayerInteractEntityEvent) {
         if (e.rightClicked is LivingEntity) {
-            if (this.isSimilar(e.player.inventory.itemInMainHand)) {
+            if (slot === e.player.inventory.heldItemSlot) {
                 e.isCancelled = true
 
                 onClick(Interaction(
@@ -74,9 +86,10 @@ abstract class Interactive : Listener {
 
     @EventHandler
     fun _onClickPlayer(e: EntityDamageByEntityEvent) {
-        if (e.damager is Player && e.entity is LivingEntity) {
-            val damager = e.damager as Player
-            if (this.isSimilar(damager.inventory.itemInMainHand)) {
+        val damager = e.damager
+        val entity = e.entity
+        if (damager is Player && entity is LivingEntity) {
+            if (slot === damager.inventory.heldItemSlot) {
                 e.isCancelled = true
                 onClick(Interaction(
                         damager,
@@ -90,12 +103,12 @@ abstract class Interactive : Listener {
 
     @EventHandler(ignoreCancelled = true)
     fun _checkEquip(e: PlayerItemHeldEvent) {
-        if (this.isSimilar(e.player.inventory.getItem(e.previousSlot))) {
+        if (slot === e.previousSlot) {
             if(onUnEquip(e.player)) {
                 // should move it back while not calling a second event?
                 e.isCancelled = true
             }
-        } else if (this.isSimilar(e.player.inventory.getItem(e.newSlot))) {
+        } else if (slot === e.newSlot) {
             if (onEquip(e.player)) {
                 // should move it back while not cancelling the event
                 e.player.inventory.heldItemSlot = e.previousSlot
@@ -103,20 +116,13 @@ abstract class Interactive : Listener {
         }
     }
 
-    /**
-     * Type of the item
-     */
-    abstract val type: Material
-
-    /**
-     * Name of the item
-     */
-    abstract val name: String
-
-    /**
-     * Lore of the item
-     */
-    abstract val lore: List<String>
+    fun startCooldown(p: Player) {
+        p.inventory.setItem(slot, cooldownItem)
+        val pref = WeakReference(p)
+        cooldowns.addCooldown(p, cooldown) {
+            pref.get()?.inventory?.setItem(slot, item)
+        }
+    }
 
     /**
      * When the interactive is clicked
@@ -136,15 +142,4 @@ abstract class Interactive : Listener {
      * @return whether to keep the cursor on the item
      */
     abstract fun onUnEquip(p: Player): Boolean
-
-    /**
-     * Function to decide if an item is this type of item
-     */
-    fun isSimilar(item: ItemStack?): Boolean {
-        if(item === null) return false
-        return item.itemMeta?.displayName == this.item.itemMeta?.displayName
-                && item.itemMeta?.lore == this.item.itemMeta?.lore
-                && item.data.data == this.item.data.data
-                && item.typeId == this.item.typeId
-    }
 }
