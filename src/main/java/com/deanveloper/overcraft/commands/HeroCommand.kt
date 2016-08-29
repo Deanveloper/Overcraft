@@ -33,7 +33,11 @@ object HeroCommand : CommandExecutor, TabExecutor {
         }
     }
 
-    override fun onTabComplete(sender: CommandSender, cmd: Command, lbl: String, args: Array<out String>): MutableList<String>? {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onTabComplete(sender: CommandSender, cmd: Command, lbl: String, args: Array<out String>): List<String>? {
+        if(args.size == 1) {
+            val soFar = args[0]
+            return Heroes.values().filter { it.name.startsWith(soFar.toUpperCase()) }.map { it.toString() }
+        }
+        return emptyList()
     }
 }

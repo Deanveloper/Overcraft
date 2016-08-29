@@ -2,3 +2,6 @@ main: com.deanveloper.overcraft.Overcraft
 name: Overcraft
 author: Deanveloper
 version: ${project.version}
+commands:
+  hero:
+    description: "select a hero"

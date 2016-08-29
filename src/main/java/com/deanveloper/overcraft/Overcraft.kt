@@ -1,5 +1,6 @@
 package com.deanveloper.overcraft
 
+import com.deanveloper.overcraft.commands.HeroCommand
 import com.deanveloper.overcraft.util.OcPlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -18,6 +19,8 @@ class Overcraft : JavaPlugin() {
     override fun onEnable() {
         _PLUGIN = this
         Bukkit.getPluginManager().registerEvents(GeneralListener, this)
+        getCommand("hero").executor = HeroCommand
+        getCommand("hero").tabCompleter = HeroCommand
     }
 }
 
