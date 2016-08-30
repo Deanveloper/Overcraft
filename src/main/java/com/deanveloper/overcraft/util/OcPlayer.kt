@@ -25,6 +25,8 @@ class OcPlayer private constructor(p: Player) : CustomPlayer(p), Player by p {
                 }
                 newHero.onSpawn(this)
             }
+
+            field = newHero
         }
 
     var lastAttacker: OcPlayer? = null
