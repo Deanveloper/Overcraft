@@ -36,7 +36,7 @@ object Shuriken : Weapon() {
                             "Right Click",
                             " - Shoot three shurikens in a fan pattern"
                     )
-            ), false)
+            ), toDefaultCooldown = false)
 
     override fun onUse(e: Interaction) {
         if (e.click == Interaction.Click.LEFT) {
@@ -105,7 +105,7 @@ object Reflect : Ability() {
                         "Reflects projectiles in front of you",
                         "in the direction you are looking"
                 )
-            }, true)
+            }, toDefaultCooldown = true)
 
     override val cooldown = 20 * 8L
 
@@ -143,8 +143,8 @@ object Reflect : Ability() {
                         val projectile = player.world.spawn(damager.location, damager.javaClass)
                         projectile.shooter = player
                         projectile.velocity = player.location.direction.normalize()
-                                .multiply(projectile.velocity.length())
-                        player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
+                                .multiply(damager.velocity.length())
+                        player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, .6f, 2f)
                         damager.remove()
 
                         object : ProjectileShot(player, projectile) {

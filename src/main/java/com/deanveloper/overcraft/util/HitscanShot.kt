@@ -13,7 +13,7 @@ import org.bukkit.util.Vector
  */
 abstract class HitscanShot(
         var source: LivingEntity,
-        var loc: Location = source.location,
+        var loc: Location = source.eyeLocation,
         _vec: Vector = source.location.direction
 ) {
     var vec = _vec.normalize().multiply(.2)!!
