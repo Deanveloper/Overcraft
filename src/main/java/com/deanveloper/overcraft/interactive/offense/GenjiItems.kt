@@ -183,12 +183,18 @@ object SwiftStrike : Ability() {
 
     override fun onUse(i: Interaction) {
         val from = i.player.location.clone()
-        val to = from.clone().add(from.direction.multiply(14))
 
         object : HitscanShot(i.player) {
             override fun whileFlying(loc: Location): Boolean {
-                if (loc.distanceSquared(to) < 1) {
-                    i.player.teleport(to)
+                source.world.spigot().playEffect(
+                        loc,
+                        Effect.MAGIC_CRIT,
+                        0, 0,
+                        .3f, .1f, .3f,
+                        0f, 5, 30
+                )
+                if (loc.distanceSquared(from) > 14 * 14) {
+                    source.teleport(loc)
                     return false
                 }
                 return true
