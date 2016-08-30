@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
@@ -89,6 +90,7 @@ abstract class Interactive : Listener {
 
     @EventHandler
     fun _onClickPlayer(e: EntityDamageByEntityEvent) {
+        if(e.cause === EntityDamageEvent.DamageCause.CUSTOM) return
         val damager = e.damager
         val entity = e.entity
         if (damager is Player && entity is LivingEntity) {
@@ -156,8 +158,8 @@ data class ItemPair(val main: ItemStack, val cooldown: ItemStack) {
             main,
             if(toDefaultCooldown) {
                 main.clone().apply {
-                    data.data = DyeColor.GRAY.woolData
                     type = Material.STAINED_GLASS_PANE
+                    data.data = DyeColor.GRAY.woolData
                 }
             } else {
                 main

@@ -3,9 +3,15 @@ package com.deanveloper.overcraft
 import com.deanveloper.overcraft.commands.HeroCommand
 import com.deanveloper.overcraft.util.OcPlayer
 import org.bukkit.Bukkit
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -44,4 +50,28 @@ object GeneralListener : Listener {
 
         p.onDeath()
     }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun cancelNonCustom(e: EntityDamageEvent) {
+        if(e.cause !== EntityDamageEvent.DamageCause.CUSTOM) {
+            e.isCancelled === true
+        }
+        val ent = e.entity
+        if(ent.type.isAlive) {
+            ent as LivingEntity
+            ent.noDamageTicks = 0
+            ent.maximumNoDamageTicks = 0
+        }
+    }
+}
+
+
+fun LivingEntity.hit(damage: Double, from: LivingEntity) {
+    if(this.type === EntityType.PLAYER && from.type === EntityType.PLAYER) {
+        this as Player // smart cast
+        from as Player // smart cast
+        this.oc.lastAttacker = from.oc
+    }
+    this.maximumNoDamageTicks = 0
+    this.damage(damage)
 }

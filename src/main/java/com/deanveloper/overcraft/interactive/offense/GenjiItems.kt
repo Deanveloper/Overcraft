@@ -33,8 +33,7 @@ object Shuriken : Weapon() {
                             "Right Click",
                             " - Shoot three shurikens in a fan pattern"
                     )
-            ),
-            toDefaultCooldown = false)
+            ), false)
 
     override fun onUse(e: Interaction) {
         if (e.click == Interaction.Click.LEFT) {
@@ -43,8 +42,8 @@ object Shuriken : Weapon() {
                     val arrow = e.player.world.spawnArrow(
                             e.player.eyeLocation,
                             e.player.eyeLocation.direction,
-                            2.5f,
-                            0f)
+                            2.5f, 0f)
+                    arrow.shooter = e.player
                     arrow.setGravity(false)
                     arrow.world.playSound(arrow.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, .8f)
                     object : ProjectileShot(e.player, arrow) {
@@ -52,11 +51,13 @@ object Shuriken : Weapon() {
                             projectile.world.spigot().playEffect(projectile.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                         }
 
-                        override fun onHit(e: LivingEntity) {
+                        override fun onHit(hit: LivingEntity) {
+                            source
+                            hit.damage(2.8, source)
                             projectile.remove()
                         }
 
-                        override fun onHit() {
+                        override fun onHit(loc: Location) {
                             projectile.remove()
                         }
                     }
@@ -69,6 +70,7 @@ object Shuriken : Weapon() {
                         e.player.eyeLocation,
                         e.player.eyeLocation.direction.rotateAroundY(i.toDouble()),
                         2.5f, 0f)
+                arrow.shooter = e.player
                 arrow.setGravity(false)
                 arrow.world.playSound(arrow.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, .8f)
                 object : ProjectileShot(e.player, arrow) {
@@ -77,12 +79,12 @@ object Shuriken : Weapon() {
                                 Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                     }
 
-                    override fun onHit(e: LivingEntity) {
-                        e.damage(2.8, source)
+                    override fun onHit(hit: LivingEntity) {
+                        hit.damage(2.8, source)
                         projectile.remove()
                     }
 
-                    override fun onHit() {
+                    override fun onHit(loc: Location) {
                         projectile.remove()
                     }
                 }

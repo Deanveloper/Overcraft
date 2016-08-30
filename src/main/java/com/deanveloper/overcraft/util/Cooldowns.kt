@@ -42,6 +42,7 @@ class Cooldowns {
 
     fun remove(id: UUID) {
         val (task, onRemove) = cooldowns[id] ?: return
+        cooldowns.remove(id)
         task.cancel()
         onRemove()
     }

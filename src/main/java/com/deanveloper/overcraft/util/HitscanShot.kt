@@ -42,7 +42,7 @@ abstract class HitscanShot(
                 if(!onHit(e)) break@dance
             }
 
-            if(loc.block !== null && loc.block.typeId !== 0) {
+            if(loc.block !== null && loc.block.type.isSolid) {
                 if(!onHit(loc)) break@dance
             }
 

@@ -65,6 +65,10 @@
       <id>my-repo</id>
       <url>https://dl.bintray.com/</url>
     </repository>
+    <repository>
+      <id>projectilelib</id>
+      <url>https://github.com/stirante/mvn-repo/raw/master/snapshots</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>

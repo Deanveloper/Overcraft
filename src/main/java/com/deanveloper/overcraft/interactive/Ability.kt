@@ -14,8 +14,6 @@ import java.util.*
  * @author Dean
  */
 abstract class Ability(val useOnEquip: Boolean = true) : Interactive() {
-    override val item = ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIME.woolData.toShort())
-    override val cooldownItem = item.clone().apply { data.data = DyeColor.GRAY.woolData }
     abstract fun onUse(i: Interaction)
 
     override fun onClick(e: Interaction) {
