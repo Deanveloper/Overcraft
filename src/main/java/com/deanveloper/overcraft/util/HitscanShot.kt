@@ -12,7 +12,7 @@ import org.bukkit.util.Vector
  * @author Dean
  */
 abstract class HitscanShot(
-        var source: Entity,
+        var source: LivingEntity,
         var loc: Location = source.location,
         _vec: Vector = source.location.direction
 ) {

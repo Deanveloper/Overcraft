@@ -95,7 +95,6 @@ abstract class Interactive : Listener {
         val entity = e.entity
         if (damager is Player && entity is LivingEntity) {
             if (slot === damager.inventory.heldItemSlot) {
-                e.isCancelled = true
                 onClick(Interaction(
                         damager,
                         this,

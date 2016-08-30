@@ -51,10 +51,10 @@ object GeneralListener : Listener {
         p.onDeath()
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun cancelNonCustom(e: EntityDamageEvent) {
-        if(e.cause !== EntityDamageEvent.DamageCause.CUSTOM) {
-            e.isCancelled === true
+        if(e.cause !== EntityDamageEvent.DamageCause.CUSTOM && e.cause !== EntityDamageEvent.DamageCause.VOID) {
+            e.isCancelled = true
         }
         val ent = e.entity
         if(ent.type.isAlive) {
@@ -66,12 +66,13 @@ object GeneralListener : Listener {
 }
 
 
-fun LivingEntity.hit(damage: Double, from: LivingEntity) {
+fun LivingEntity.hurt(damage: Double, from: LivingEntity) {
     if(this.type === EntityType.PLAYER && from.type === EntityType.PLAYER) {
         this as Player // smart cast
         from as Player // smart cast
         this.oc.lastAttacker = from.oc
     }
-    this.maximumNoDamageTicks = 0
     this.damage(damage)
+    this.maximumNoDamageTicks = 0
+    this.noDamageTicks = 0
 }

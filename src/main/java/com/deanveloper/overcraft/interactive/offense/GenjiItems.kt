@@ -4,6 +4,7 @@ import com.deanveloper.kbukkit.plus
 import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.PLUGIN
+import com.deanveloper.overcraft.hurt
 import com.deanveloper.overcraft.interactive.Ability
 import com.deanveloper.overcraft.interactive.ItemPair
 import com.deanveloper.overcraft.interactive.Ultimate
@@ -11,10 +12,12 @@ import com.deanveloper.overcraft.interactive.Weapon
 import com.deanveloper.overcraft.oc
 import com.deanveloper.overcraft.util.*
 import org.bukkit.*
-import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
-import org.bukkit.inventory.ItemStack
-import org.bukkit.metadata.LazyMetadataValue
+import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
+import org.bukkit.event.EventHandler
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 /**
  * @author Dean
@@ -51,9 +54,8 @@ object Shuriken : Weapon() {
                             projectile.world.spigot().playEffect(projectile.location, Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                         }
 
-                        override fun onHit(hit: LivingEntity) {
-                            source
-                            hit.damage(2.8, source)
+                        override fun onHit(target: LivingEntity) {
+                            target.hurt(2.8, source)
                             projectile.remove()
                         }
 
@@ -79,8 +81,8 @@ object Shuriken : Weapon() {
                                 Effect.MAGIC_CRIT, 0, 0, 0f, 0f, 0f, 0f, 1, 100)
                     }
 
-                    override fun onHit(hit: LivingEntity) {
-                        hit.damage(2.8, source)
+                    override fun onHit(target: LivingEntity) {
+                        target.hurt(2.8, source)
                         projectile.remove()
                     }
 
@@ -109,24 +111,58 @@ object Reflect : Ability() {
 
     override fun onUse(i: Interaction) {
         val p = i.player
-        val armorStand = p.world.spawn(p.location.add(p.location.direction), ArmorStand::class.java)
-        armorStand.setMetadata("reflect", LazyMetadataValue(PLUGIN, { i.player }))
-        i.player.oc.removeOnDeath.add(armorStand)
+        p.oc.isGenjiReflecting = true
 
-        val task = runTaskTimer(PLUGIN, 0, 1) {
-            armorStand.teleport(p.location.add(p.location.direction.setY(0)))
-        }
-
-        val otherTask = runTaskTimer(PLUGIN, 0, 4) {
-            armorStand.world.playSound(armorStand.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, .5f, 1.5f)
+        val task = runTaskTimer(PLUGIN, 0, 4) {
+            p.world.playSound(p.location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, .5f, 1.5f)
+            p.world.spigot().playEffect(
+                    p.location.add(0.0, 1.0, 0.0).add(p.location.direction),
+                    Effect.MAGIC_CRIT,
+                    0, 0,
+                    .5f, 1f, .5f,
+                    0f, 10, 30)
         }
 
         runTaskLater(PLUGIN, 20 * 2) {
-            armorStand.remove()
             task.cancel()
-            otherTask.cancel()
-
             startCooldown(p)
+            p.oc.isGenjiReflecting = false
+        }
+    }
+
+    @EventHandler
+    fun onHitUntrackedProjectile(e: EntityDamageByEntityEvent) {
+        val damager = e.damager
+        val player = e.entity
+        if (damager.uniqueId !in ProjectileShot.trackedProjectiles && damager is Projectile) {
+            if(player.type === EntityType.PLAYER) {
+                player as Player // smart cast
+                if(player.oc.isGenjiReflecting) {
+                    val radians = player.location.direction.angle(damager.velocity)
+                    if(Math.toDegrees(radians.toDouble()) in 90..270) {
+                        val projectile = player.world.spawn(damager.location, damager.javaClass)
+                        projectile.shooter = player
+                        projectile.velocity = player.location.direction.normalize()
+                                .multiply(projectile.velocity.length())
+                        player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
+                        damager.remove()
+
+                        object : ProjectileShot(player, projectile) {
+                            override fun whileFlying() {}
+
+                            override fun onHit(target: LivingEntity) {
+                                target.hurt(5.0, source)
+                                projectile.remove()
+                            }
+
+                            override fun onHit(loc: Location) {
+                                projectile.remove()
+                            }
+                        }
+                        return
+                    }
+                }
+            }
         }
     }
 }
@@ -159,7 +195,7 @@ object SwiftStrike : Ability() {
             }
 
             override fun onHit(e: LivingEntity): Boolean {
-                e.damage(5.0, source)
+                e.hurt(5.0, source)
                 return true
             }
 
@@ -212,7 +248,7 @@ object Dragonblade : Ultimate(true) {
     }
 
     override fun onAttack(i: Interaction) {
-        i.target?.damage(8.0)
+        i.target?.hurt(8.0, i.player)
         startCooldown(i.player)
     }
 }
