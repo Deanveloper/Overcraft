@@ -1,4 +1,4 @@
-package com.deanveloper.overcraft.interactive
+package com.deanveloper.overcraft.item
 
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.util.Cooldowns
@@ -129,19 +129,19 @@ abstract class Interactive : Listener {
     }
 
     /**
-     * When the interactive is clicked
+     * When the item is clicked
      */
     abstract fun onClick(e: Interaction)
 
     /**
-     * When the interactive is equipped
+     * When the item is equipped
      *
      * @return whether to move the cursor back to the main weapon
      */
     abstract fun onEquip(p: Player): Boolean
 
     /**
-     * When the interactive is unequipped
+     * When the item is unequipped
      *
      * @return whether to keep the cursor on the item
      */

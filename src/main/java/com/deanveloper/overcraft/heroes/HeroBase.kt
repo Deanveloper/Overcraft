@@ -1,6 +1,6 @@
 package com.deanveloper.overcraft.heroes
 
-import com.deanveloper.overcraft.interactive.Interactive
+import com.deanveloper.overcraft.item.Interactive
 import com.deanveloper.overcraft.util.OcPlayer
 
 /**

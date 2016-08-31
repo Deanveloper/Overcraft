@@ -1,6 +1,6 @@
 package com.deanveloper.overcraft.util
 
-import com.deanveloper.overcraft.interactive.Interactive
+import com.deanveloper.overcraft.item.Interactive
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action

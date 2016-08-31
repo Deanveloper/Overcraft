@@ -1,14 +1,14 @@
-package com.deanveloper.overcraft.interactive.offense
+package com.deanveloper.overcraft.item.offense
 
 import com.deanveloper.kbukkit.plus
 import com.deanveloper.kbukkit.runTaskLater
 import com.deanveloper.kbukkit.runTaskTimer
 import com.deanveloper.overcraft.PLUGIN
 import com.deanveloper.overcraft.hurt
-import com.deanveloper.overcraft.interactive.Ability
-import com.deanveloper.overcraft.interactive.ItemPair
-import com.deanveloper.overcraft.interactive.Ultimate
-import com.deanveloper.overcraft.interactive.Weapon
+import com.deanveloper.overcraft.item.Ability
+import com.deanveloper.overcraft.item.ItemPair
+import com.deanveloper.overcraft.item.Ultimate
+import com.deanveloper.overcraft.item.Weapon
 import com.deanveloper.overcraft.oc
 import com.deanveloper.overcraft.util.*
 import org.bukkit.*
@@ -135,31 +135,25 @@ object Reflect : Ability() {
         val damager = e.damager
         val player = e.entity
         if (damager.uniqueId !in ProjectileShot.trackedProjectiles && damager is Projectile) {
-            if(player.type === EntityType.PLAYER) {
+            if (player.type === EntityType.PLAYER) {
                 player as Player // smart cast
-                if(player.oc.isGenjiReflecting) {
-                    val radians = player.location.direction.angle(damager.velocity)
-                    if(Math.toDegrees(radians.toDouble()) in 90..270) {
-                        val projectile = player.world.spawn(damager.location, damager.javaClass)
-                        projectile.shooter = player
-                        projectile.velocity = player.location.direction.normalize()
-                                .multiply(damager.velocity.length())
-                        player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, .6f, 2f)
-                        damager.remove()
+                if (player.oc.shouldReflect(damager.velocity)) {
+                    val newProj = damager.clone(player)
+                    player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, .6f, 2f)
+                    damager.remove()
 
-                        object : ProjectileShot(player, projectile) {
-                            override fun whileFlying() {}
-
-                            override fun onHit(target: LivingEntity) {
-                                target.hurt(5.0, source)
-                                projectile.remove()
-                            }
-
-                            override fun onHit(loc: Location) {
-                                projectile.remove()
-                            }
+                    object : ProjectileShot(player, newProj) {
+                        override fun whileFlying() {
                         }
-                        return
+
+                        override fun onHit(target: LivingEntity) {
+                            target.hurt(5.0, source)
+                            projectile.remove()
+                        }
+
+                        override fun onHit(loc: Location) {
+                            projectile.remove()
+                        }
                     }
                 }
             }

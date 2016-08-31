@@ -1,12 +1,13 @@
 package com.deanveloper.overcraft.util
 
+import com.deanveloper.overcraft.oc
 import org.bukkit.Location
 import org.bukkit.Sound
-import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import java.util.*
 
 /**
  * @author Dean
@@ -17,6 +18,7 @@ abstract class HitscanShot(
         _vec: Vector = source.location.direction
 ) {
     var vec = _vec.normalize().multiply(.2)!!
+    private val alreadyHit = mutableSetOf<UUID>()
 
     init {
         val entities = source.world.livingEntities.apply { remove(source) }
@@ -24,29 +26,32 @@ abstract class HitscanShot(
         dance@for (i in 0..1000) {
             loc.add(vec)
 
-            val hit = entities.filter {
-                it.location.distanceSquared(loc) < 1 || it.eyeLocation.distanceSquared(loc) < 1
-            }
+            val hit = entities
+                    .filterNot { it.location.distanceSquared(loc) > 1 }
+                    .filterNot { it.eyeLocation.distanceSquared(loc) > 1 }
+                    .filterNot { it.uniqueId in alreadyHit }
 
-            for(e in hit) {
-                //if it is genji's reflect hitbox
-                if(e.type === EntityType.ARMOR_STAND) {
-                    val owner = e.getMetadata("reflect").getOrNull(0) as Player?
-                    if(owner != null) {
-                        source = owner
-                        loc = owner.location
-                        vec = owner.location.direction
+            for (ent in hit) {
+                alreadyHit.add(ent.uniqueId)
+                //if it is genji's reflect
+                if (ent.type === EntityType.PLAYER) {
+                    ent as Player // smart cast
+                    //multiply by 100 because hitscan has high speed
+                    if (ent.oc.shouldReflect(vec.clone().multiply(100))) {
+                        source = ent
+                        loc = ent.location
+                        vec = ent.location.direction
                         source.world.playSound(source.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
                     }
                 }
-                if(!onHit(e)) break@dance
+                if (!onHit(ent)) break@dance
             }
 
-            if(loc.block !== null && loc.block.type.isSolid) {
-                if(!onHit(loc)) break@dance
+            if (loc.block !== null && loc.block.type.isSolid) {
+                if (!onHit(loc)) break@dance
             }
 
-            if(!whileFlying(loc)) break@dance
+            if (!whileFlying(loc)) break@dance
         }
     }
 

@@ -1,4 +1,4 @@
-package com.deanveloper.overcraft.interactive
+package com.deanveloper.overcraft.item
 
 import com.deanveloper.overcraft.util.Interaction
 import org.bukkit.entity.Player
