@@ -178,7 +178,7 @@ object SwiftStrike : Ability() {
     override fun onUse(i: Interaction) {
         val from = i.player.location.clone()
 
-        object : HitscanShot(i.player) {
+        object : HitscanShot(i.player, isReflectable = false) {
             override fun whileFlying(loc: Location): Boolean {
                 source.world.spigot().playEffect(
                         loc,
@@ -200,7 +200,7 @@ object SwiftStrike : Ability() {
             }
 
             override fun onHit(loc: Location): Boolean {
-                i.player.teleport(loc.clone().subtract(loc.direction.multiply(.2)))
+                source.teleport(loc.clone().subtract(loc.direction.multiply(.2)))
                 return false
             }
         }

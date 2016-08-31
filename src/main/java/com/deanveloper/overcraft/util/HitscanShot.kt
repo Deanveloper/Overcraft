@@ -15,7 +15,8 @@ import java.util.*
 abstract class HitscanShot(
         var source: LivingEntity,
         var loc: Location = source.eyeLocation,
-        _vec: Vector = source.location.direction
+        _vec: Vector = source.location.direction,
+        val isReflectable: Boolean = true
 ) {
     var vec = _vec.normalize().multiply(.2)!!
     private val alreadyHit = mutableSetOf<UUID>()
@@ -34,7 +35,7 @@ abstract class HitscanShot(
             for (ent in hit) {
                 alreadyHit.add(ent.uniqueId)
                 //if it is genji's reflect
-                if (ent.type === EntityType.PLAYER) {
+                if (isReflectable && ent.type === EntityType.PLAYER) {
                     ent as Player // smart cast
                     //multiply by 100 because hitscan has high speed
                     if (ent.oc.shouldReflect(vec.clone().multiply(100))) {
