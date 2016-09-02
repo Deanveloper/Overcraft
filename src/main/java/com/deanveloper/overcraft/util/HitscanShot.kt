@@ -28,8 +28,8 @@ abstract class HitscanShot(
             loc.add(vec)
 
             val hit = entities
-                    .filterNot { it.location.distanceSquared(loc) > 1 }
-                    .filterNot { it.eyeLocation.distanceSquared(loc) > 1 }
+                    .filterNot { it.location.distanceSquared(loc) > 1.5*1.5 }
+                    .filterNot { it.eyeLocation.distanceSquared(loc) > 1.5*1.5 }
                     .filterNot { it.uniqueId in alreadyHit }
 
             for (ent in hit) {

@@ -67,7 +67,7 @@ abstract class ProjectileShot(var source: LivingEntity, var projectile: Projecti
                     ticks = 0
 
                     source.world.playSound(source.location, Sound.BLOCK_ANVIL_PLACE, 1f, 1f)
-                    return
+                    return // do not call onHit()
                 }
             }
             if (hit.type.isAlive) {

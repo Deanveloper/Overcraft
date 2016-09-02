@@ -138,6 +138,7 @@ object Reflect : Ability() {
             if (player.type === EntityType.PLAYER) {
                 player as Player // smart cast
                 if (player.oc.shouldReflect(damager.velocity)) {
+                    e.isCancelled = true
                     val newProj = damager.clone(player)
                     player.world.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, .6f, 2f)
                     damager.remove()

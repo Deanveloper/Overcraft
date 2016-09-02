@@ -10,6 +10,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -57,28 +58,21 @@ object GeneralListener : Listener {
         // if a player has a hero selected, make sure that their hits don't register
         // unless the plugin does it for them
         if (damager is Projectile) {
-            Bukkit.broadcastMessage("Projectile")
             val shooter = damager.shooter
             // if a hero is selected
             if (shooter is Player) {
-                Bukkit.broadcastMessage("Player")
                 if (shooter.oc.hero !== null) {
-                    Bukkit.broadcastMessage("Hero")
                     if(e.cause !== EntityDamageEvent.DamageCause.CUSTOM) {
-                        Bukkit.broadcastMessage("Custom")
                         e.isCancelled = true
                     }
                 }
             }
         } else if (damager.type === EntityType.PLAYER) {
-            Bukkit.broadcastMessage("Player")
             damager as Player
             // if a hero is selected
             if (damager.oc.hero !== null) {
-                Bukkit.broadcastMessage("Hero")
                 // refuse damage dealt by them if it is not magic
                 if(e.cause !== EntityDamageEvent.DamageCause.CUSTOM) {
-                    Bukkit.broadcastMessage("Custom")
                     e.isCancelled = true
                 }
             }
@@ -90,13 +84,9 @@ object GeneralListener : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun monitorDamage(e: EntityDamageByEntityEvent) {
-        val damager = e.damager
-        if(damager is Projectile) {
-            Bukkit.broadcastMessage("${e.cause}: ${e.damage} (${damager.shooter}")
-        } else {
-            Bukkit.broadcastMessage("${e.cause}: ${e.damage}")
+    fun noItemDamage(e: PlayerItemDamageEvent) {
+        if(e.player?.oc?.hero === null) {
+            e.isCancelled = true
         }
     }
 }
