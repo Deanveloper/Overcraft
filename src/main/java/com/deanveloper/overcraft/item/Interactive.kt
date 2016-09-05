@@ -40,7 +40,7 @@ abstract class Interactive : Listener {
         Bukkit.getPluginManager().registerEvents(this, PLUGIN)
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _onClick(e: PlayerInteractEvent) {
         if(e.hand === EquipmentSlot.HAND) {
             if (e.action != Action.PHYSICAL) {
@@ -58,21 +58,21 @@ abstract class Interactive : Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _onDrop(e: PlayerDropItemEvent) {
         if(e.player.inventory.heldItemSlot == slot) {
             e.isCancelled = true
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _onInventory(e: InventoryClickEvent) {
         if(e.slot == slot) {
             e.isCancelled = true
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _onClickPlayer(e: PlayerInteractEntityEvent) {
         if (e.rightClicked is LivingEntity) {
             if (slot === e.player.inventory.heldItemSlot) {
@@ -88,7 +88,7 @@ abstract class Interactive : Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     fun _onClickPlayer(e: EntityDamageByEntityEvent) {
         if(e.cause === EntityDamageEvent.DamageCause.CUSTOM) return
         val damager = e.damager
