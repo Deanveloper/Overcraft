@@ -6,7 +6,6 @@ import com.deanveloper.overcraft.item.offense.Reflect
 import com.deanveloper.overcraft.item.offense.Shuriken
 import com.deanveloper.overcraft.item.offense.SwiftStrike
 import com.deanveloper.overcraft.util.OcPlayer
-import org.bukkit.Bukkit
 
 /**
  * @author Dean
