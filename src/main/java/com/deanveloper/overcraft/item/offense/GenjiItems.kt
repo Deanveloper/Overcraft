@@ -217,7 +217,7 @@ object Dragonblade : Ultimate(true) {
     override val items = ItemPair(
             OcItem(
                     Material.DIAMOND_SWORD,
-                    ChatColor.GREEN + ChatColor.BOLD + "Swift Strike",
+                    ChatColor.GREEN + ChatColor.BOLD + "DRAGONBLADE",
                     listOf(
                             "Wield your sword, which deals",
                             "an extremely large amount of damage"
@@ -225,7 +225,7 @@ object Dragonblade : Ultimate(true) {
             ),
             OcItem(
                     Material.IRON_SWORD,
-                    ChatColor.GREEN + ChatColor.BOLD + "Swift Strike",
+                    ChatColor.GREEN + ChatColor.BOLD + "DRAGONBLADE",
                     listOf(
                             "Wield your sword, which deals",
                             "an extremely large amount of damage"
